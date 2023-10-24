@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(auto()) @map("_id") @db.ObjectId
+  email         String         @unique
+  password      String
+  refreshTokens RefreshToken[]
+  isAdmin       Boolean         @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+}
+
+model RefreshToken {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  hashedToken String
+  userId      String   @db.ObjectId
+  User        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  revoked     Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model RequestCreatePassword {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  email       String
+  hashedToken String
+  couponCode  String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model UserLog {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  timestamp DateTime @default(now())
+  userId    String?   @db.ObjectId
+  level     String
+  message   String
+  meta      Json?
+}
+
+model UserSession {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  memberId  String
+  userAgent  String
+  ip String
+  appType String
+  timestamp   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  isActive Boolean @default(true)
+}
