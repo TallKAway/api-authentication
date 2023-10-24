@@ -317,17 +317,6 @@ async function generateAllTokens(existingUser, req) {
 }
 
 
-// Middleware pour vérifier l'accès au tableau de bord
-function checkDashboardAccess(member) {
-
-    if (member.dashbordAccess) {
-        // Autoriser l'accès au tableau de bord
-    } else {
-        // Interdire l'accès au tableau de bord
-        res.status(403).send('Accès au tableau de bord interdit');
-    }
-}
-
 // Middleware pour vérifier l'accès à l'application
 function checkAppAccess(req, res, next) {
     const member = req.member; // Supposons que vous avez déjà récupéré le membre à partir de la base de données
