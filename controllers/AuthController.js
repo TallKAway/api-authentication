@@ -17,7 +17,8 @@ const {generateTokens, generateAdminTokens} = require("../utils/jwt");
 const {
     findUserByEmail,
     createUserByEmailAndPassword,
-    findUserById
+    findUserById,
+    createUser
 } = require("../repository/UserRepository");
 
 const {
@@ -50,69 +51,43 @@ async function Test(req, res) {
     }
 }
 
-async function Register(req, res) {
-    
+async function GetToken(req, res) {
     try {
-        const { password, memberId, } = req.body;
-        // const { authorization } = req.headers;
-
-        //verification du token
-        const plainTextMember = isValidatedPasswordToken(memberId)
-
-        if(plainTextMember.error){
-            return res.status(400).json({ msg: plainTextMember.error  });
-        }
-
-        const userData = await getUserWithId(plainTextMember.id);
-
-        if (!userData || userData.deleted_at !== null) { // Check if member is valide
-            res.status(403);
-            return res.status(400).json({msg: "Le membre est inrouvable"});
-        }
-
-        const email = userData.email
+        const { email, password } = req.body;
 
         if (!email || !password) {
-            res.status(400);
-            return res
-                .status(400)
-                .json({msg : "You must provide an email and a password."});
+            console.log(email, password)
+            return res.status(400).json({ msg: "You must provide an email and a password." });
         }
+
+        // Vérifier si l'utilisateur existe déjà
         const existingUser = await findUserByEmail(email);
-
         if (existingUser) {
-            res.status(400);
-            return res.status(400).json({ msg : "Email already in use." });
+            return res.status(400).json({ msg: "Email already in use." });
         }
 
-        const user = await createUserByEmailAndPassword({ email, password });
+        // Créer un nouvel utilisateur avec email et mot de passe
+        
 
-        if(user){
-            const registered = setMemberIsRegistered(userData.id, req.params.token);
-            console.log("registered est passer")
-        }
+       const jti = (new ObjectId()).toString();
 
-        // const jti = (new ObjectId()).toString();
-        //
-        // const { accessToken, refreshToken } = generateTokens(user, jti);
-        // if (user) {
-        //     // emailWelcome(user.email)
-        //     await sendWelcomeEmail(user.email);
-        // }
-        //
-        // await addRefreshTokenToWhitelist({jti, refreshToken, userId: user.id});
+            // Générer un accessToken et un refreshToken pour le nouvel utilisateur
+            const { accessToken, refreshToken } = generateTokens(existingUser, jti);
 
-      
-        return res
-            .status(201)
-            .json({ msg : "Mot de passe créé avec succès." });
+            // Ajouter le refreshToken à la liste blanche
+            await addRefreshTokenToWhitelist({ jti, refreshToken, userId: existingUser.id });
+
+            // Répondre avec les tokens générés
+            return res.status(201).json({ accessToken, refreshToken });
+
+        return res.status(400).json({ msg: "Unsuccessful User Registration" });
 
     } catch (err) {
-        console.log(err)
-        // discordLogger.error("Une erreur s'est produite.", err);
-        return res.status(400).json({msg: " Unsuccessful User Registration "});
+        console.error(err);
+        return res.status(500).json({ msg: "An error occurred during registration" });
     }
 }
+
 
 async function Login(req, res) {
     try {
@@ -147,6 +122,33 @@ async function Login(req, res) {
         console.log(err);
         return res.status(400).json({ msg: "Unsuccessful Login" });
     }
+}
+
+
+async function Register(req, res) {
+  const userData = {
+    username: req.body.username,
+    email: req.body.email,
+    cellphone: req.body.cellphone,
+    password: req.body.password,
+    friends: [],
+  };
+  try {
+    const user = await createUser(userData);
+ const jti = (new ObjectId()).toString();
+       const tokens =  generateTokens(user, jti);
+
+    res.status(201).json({
+        status: ResponseMessage.MSG_311,
+        message: "User created successfully",
+        data: user,
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken
+      
+    });
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
 }
 
 async function RefreshToken(req, res) {
@@ -288,9 +290,10 @@ async function generateAllTokens(existingUser, req) {
 
 
 module.exports = {
-    Register,
+    GetToken,
     Login,
     RefreshToken,
     RevokeRefreshTokens,
+    Register,
     Test
 };

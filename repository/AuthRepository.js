@@ -76,7 +76,7 @@ async function getUserWithId(userId) {
     }catch (error){
         console.log(error)
         
-        console.log("Erreur lors de la recueration d'un membre")
+        console.log("Erreur lors de la recuperation d'un membre")
     }
 
 }

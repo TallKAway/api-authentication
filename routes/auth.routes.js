@@ -10,4 +10,8 @@ route.post("/login/:type?", AuthController.Login);
 route.post("/refreshToken", AuthController.RefreshToken);
 route.post("/revokeRefreshTokens", AuthController.RevokeRefreshTokens);
 
+route.get("/get/token/", AuthController.GetToken);
+
+
+
 module.exports = route;

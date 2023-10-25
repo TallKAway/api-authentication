@@ -7,7 +7,7 @@ const jwt = require('jsonwebtoken');
 function findUserByEmail(email) {
     return prisma.user.findUnique({
         where: {
-            email,
+            email: email,
         },
     });
 }
@@ -115,6 +115,14 @@ function resetPasswordByAdmin(user, generate) {
     });
 }
 
+
+
+function createUser(userData) {
+  return prisma.user.create({
+    data: userData,
+  });
+}
+
 module.exports = {
     findUserByEmail,
     findUserById,
@@ -124,7 +132,9 @@ module.exports = {
     changePassword,
     resetPasswordByAdmin,
     requestPassword,
-    checkRequestPassword
+    checkRequestPassword,
+    createUser
+
 };
 
 
