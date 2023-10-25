@@ -25,16 +25,14 @@ const {
     findRefreshTokenById,
     deleteRefreshToken,
     revokeTokens,
-    getMember,
-    getMemberWithId,
+    getUser,
+    getUserWithId,
     setMemberIsRegistered,
-    startUserSession,
-    createSession
 } = require("../repository/AuthRepository");
 
 const {sendWelcomeEmail} = require('../repository/NotificationsRepository');
 const {hashToken} = require('../utils/hashToken')
-const {decrypt} = require('../utils/encryption')
+// const {decrypt} = require('../utils/encryption')
 
 const { isValidatedPasswordToken } = require('../middlewares/auth')
 
@@ -47,21 +45,13 @@ async function Test(req, res) {
 
     } catch (err) {
         console.log(err)
-        discordLogger.error("Une erreur s'est produite.", err);
+        // discordLogger.error("Une erreur s'est produite.", err);
         return res.status(400).json({msg: " Unsuccessful User Registration "});
     }
 }
 
 async function Register(req, res) {
-    // #swagger.tags = ['Auths']
-    // #swagger.summary = 'User register'
-    // #swagger.description = 'Add a new user account'
-    /* #swagger.parameters['body'] = {
-              in: 'body',
-              description: ' object',
-              required: true,
-              schema: { $ref: "#/definitions/UserRegisterModel" }
-          } */
+    
     try {
         const { password, memberId, } = req.body;
         // const { authorization } = req.headers;
@@ -73,14 +63,14 @@ async function Register(req, res) {
             return res.status(400).json({ msg: plainTextMember.error  });
         }
 
-        const memberData = await getMemberWithId(plainTextMember.id);
+        const userData = await getUserWithId(plainTextMember.id);
 
-        if (!memberData || memberData.deleted_at !== null) { // Check if member is valide
+        if (!userData || userData.deleted_at !== null) { // Check if member is valide
             res.status(403);
             return res.status(400).json({msg: "Le membre est inrouvable"});
         }
 
-        const email = memberData.email
+        const email = userData.email
 
         if (!email || !password) {
             res.status(400);
@@ -98,7 +88,7 @@ async function Register(req, res) {
         const user = await createUserByEmailAndPassword({ email, password });
 
         if(user){
-            const registered = setMemberIsRegistered(memberData.id, req.params.token);
+            const registered = setMemberIsRegistered(userData.id, req.params.token);
             console.log("registered est passer")
         }
 
@@ -112,14 +102,7 @@ async function Register(req, res) {
         //
         // await addRefreshTokenToWhitelist({jti, refreshToken, userId: user.id});
 
-        /* #swagger.responses[201] = {
-                schema: { $ref: "#/definitions/User" },
-                description: 'User saved'
-            } */
-        // res.json({
-        //     accessToken,
-        //     refreshToken
-        // });
+      
         return res
             .status(201)
             .json({ msg : "Mot de passe créé avec succès." });
@@ -205,10 +188,10 @@ async function RefreshToken(req, res) {
 
         const tokens = await generateAllTokens(existingUser, res, req)
 
-        res.json({
-            accessToken : tokens.accessToken,
-            refreshToken: tokens.refreshToken
-        });
+        // res.json({
+        //     accessToken : tokens.accessToken,
+        //     refreshToken: tokens.refreshToken
+        // });
     } catch (err) {
         console.log("Error when Refreshing Token.")
         console.log(err)
@@ -252,40 +235,26 @@ async function generateAllTokens(existingUser, req) {
         };
     } else {
         // Obtenez le membre avec l'e-mail de l'utilisateur
-        const memberData = await getMember(existingUser.email);
+        const userData = await getUser(existingUser.email);
 
-        if (!memberData) {
+        if (!userData) {
             // Vérifiez si le membre est valide
             return {
                 error: "Le membre est introuvable"
             };
         }
 
-        // Vérification du type (mobile ou dashboard)
-        // const type = req.params.type;
-
-        // // ... Votre code de vérification du type ici ...
-
-        // // Créez la donnée de session
-        // const mySession = {
-        //     memberId: memberData.id,
-        //     userAgent: req.get('user-agent'),
-        //     ip: req.headers['x-forwarded-for']?.split(',').shift() || req.socket?.remoteAddress,
-        //     appType: type ? type : 'dashboard',
-        //     isActive: true,
-        // };
-
-        // ... Créez la session utilisateur ...
+        
 
         const { accessToken, refreshToken } = generateTokens(
             existingUser,
-            memberData,
+            userData,
             jti
         );
 
-        if (memberData.registered === false) {
+        if (userData.registered === false) {
             // Marquez l'utilisateur comme enregistré (mettez l'attribut à true)
-            const setRegisterMember = await setMemberIsRegistered(memberData.id, accessToken);
+            const setRegisterMember = await setMemberIsRegistered(userData.id, accessToken);
         }
 
         await addRefreshTokenToWhitelist({
@@ -303,7 +272,6 @@ async function generateAllTokens(existingUser, req) {
             {
                 user: existingUser.email,
                 action: "Login",
-                userAgent: req.get('user-agent'),
                 service: SERVICE_NAME,
                 // ip: clientIP,
             }
@@ -317,18 +285,7 @@ async function generateAllTokens(existingUser, req) {
 }
 
 
-// Middleware pour vérifier l'accès à l'application
-function checkAppAccess(req, res, next) {
-    const member = req.member; // Supposons que vous avez déjà récupéré le membre à partir de la base de données
 
-    if (member.appaccess) {
-        // Autoriser l'accès à l'application
-        next();
-    } else {
-        // Interdire l'accès à l'application
-        res.status(403).send('Accès à l\'application interdit');
-    }
-}
 
 module.exports = {
     Register,
