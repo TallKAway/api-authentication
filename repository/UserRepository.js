@@ -118,6 +118,7 @@ function resetPasswordByAdmin(user, generate) {
 
 
 function createUser(userData) {
+    userData.password = bcrypt.hashSync(userData.password, 12);
   return prisma.user.create({
     data: userData,
   });

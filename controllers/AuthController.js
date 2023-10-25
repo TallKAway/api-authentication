@@ -126,6 +126,7 @@ async function Login(req, res) {
 
 
 async function Register(req, res) {
+
   const userData = {
     username: req.body.username,
     email: req.body.email,
@@ -136,7 +137,10 @@ async function Register(req, res) {
   try {
     const user = await createUser(userData);
  const jti = (new ObjectId()).toString();
-       const tokens =  generateTokens(user, jti);
+      const tokens = generateTokens(user, jti);
+      
+     
+
 
     res.status(201).json({
         status: ResponseMessage.MSG_311,
