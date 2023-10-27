@@ -14,7 +14,9 @@ const PORT = process.env.PORT || 3008;
 const api = express();
 dotenv.config();
 api.use(express.json());
-api.use(cors());
+api.use(cors({
+  origin: '*'
+}));
 
     
 
@@ -28,7 +30,7 @@ route(api);
 api.use(middlewares.errorHandler);
 
 
-const ads = [{msg: `Roomee Authentification api is running on Port: ${PORT}`}];
+const ads = [{msg: `TallAway Authentification api is running on Port: ${PORT}`}];
 
 api.get('/', (req, res) => {
     res.send(ads);
