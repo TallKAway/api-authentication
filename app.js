@@ -36,7 +36,7 @@ api.get('/', (req, res) => {
     res.send(ads);
 });
 
-http.createServer(api).listen(PORT).setTimeout(50000);
+api.listen(PORT).setTimeout(50000);
 
 // discordLogger.warn('Roomee Authentification Service is running', {meta});
 console.info(`Listening on port ${PORT}`);
