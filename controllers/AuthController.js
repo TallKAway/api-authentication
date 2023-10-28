@@ -37,7 +37,27 @@ const {hashToken} = require('../utils/hashToken')
 
 const { isValidatedPasswordToken } = require('../middlewares/auth')
 
+
+/**
+ * @swagger
+ * tags:
+ *   name: Authentication
+ *   description: Endpoints for user authentication
+ */
+
+/**
+ * @swagger
+ * /auth/test:
+ *   get:
+ *     summary: Test endpoint
+ *     description: This endpoint is for testing.
+ *     tags: [Authentication]
+ *     responses:
+ *       '200':
+ *         description: A successful response
+ */
 async function Test(req, res) {
+
     try {
 
         return res
@@ -51,6 +71,32 @@ async function Test(req, res) {
     }
 }
 
+
+/**
+ * @swagger
+ * /auth/get/token:
+ *   post:
+ *     summary: Get Token
+ *     description: Get an access token
+ *     tags: [Authentication]
+ *     requestBody:
+ *       description: User email and password
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       '201':
+ *         description: Access token generated successfully
+ *       '400':
+ *         description: Bad request or unsuccessful user registration
+ */
 async function GetToken(req, res) {
     try {
         const { email, password } = req.body;
@@ -89,7 +135,35 @@ async function GetToken(req, res) {
 }
 
 
+
+/**
+ * @swagger
+ * /auth/login:
+ *   post:
+ *     summary: Login
+ *     description: Log in with email and password
+ *     tags: [Authentication]
+ *     requestBody:
+ *       description: User email and password
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       '201':
+ *         description: Login successful
+
+ *       '400':
+ *         description: Bad request or unsuccessful login
+ */
 async function Login(req, res) {
+
     try {
         const { email, password } = req.body;
 
@@ -112,11 +186,16 @@ async function Login(req, res) {
 
         const tokens = await generateAllTokens(existingUser, res, req);
         
-        // // Notez que vous ne renvoyez la réponse qu'une seule fois ici.
+       
+
         return res.json({
             accessToken: tokens.accessToken,
             refreshToken: tokens.refreshToken
         });
+
+
+
+ 
     } catch (err) {
         console.log("Error during authentication");
         console.log(err);
@@ -125,7 +204,38 @@ async function Login(req, res) {
 }
 
 
+
+/**
+ * @swagger
+ * /auth/register:
+ *   post:
+ *     summary: Register
+ *     description: Register a new user
+ *     tags: [Authentication]
+ *     requestBody:
+ *       description: User data
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *               cellphone:
+ *                 type: string
+ *               password:
+ *                 type: string
+ *     responses:
+ *       '201':
+ *         description: User created successfully
+ *       '400':
+ *         description: Bad request or unsuccessful user registration
+ */
 async function Register(req, res) {
+
 
   const userData = {
     username: req.body.username,
@@ -134,13 +244,14 @@ async function Register(req, res) {
     password: req.body.password,
     friends: [],
   };
-  try {
+    try {
+      
+        
     const user = await createUser(userData);
  const jti = (new ObjectId()).toString();
       const tokens = generateTokens(user, jti);
       
      
-
 
     res.status(201).json({
         status: ResponseMessage.MSG_311,
@@ -155,10 +266,32 @@ async function Register(req, res) {
   }
 }
 
+
+/**
+ * @swagger
+ * /auth/refreshToken:
+ *   post:
+ *     summary: Refresh Token
+ *     description: Refresh an access token
+ *     tags: [Authentication]
+ *     requestBody:
+ *       description: Refresh token
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               refreshToken:
+ *                 type: string
+ *     responses:
+ *       '201':
+ *         description: Token refreshed successfully
+ *       '400':
+ *         description: Bad request or token refresh failure
+ */
 async function RefreshToken(req, res) {
-    // #swagger.tags = ['Refresh Token']
-    // #swagger.summary = 'Add a new token'
-    // #swagger.description = 'Add a new RefreshToken'
+
 
     try {
         const { refreshToken } = req.body;
@@ -206,9 +339,32 @@ async function RefreshToken(req, res) {
     }
 }
 
+
+/**
+ * @swagger
+ * /auth/revokeRefreshTokens:
+ *   post:
+ *     summary: Revoke Refresh Tokens
+ *     description: Revoke all refresh tokens for a user
+ *     tags: [Authentication]
+ *     requestBody:
+ *       description: User ID
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               userId:
+ *                 type: string
+ *     responses:
+ *       '200':
+ *         description: Refresh tokens revoked successfully
+ *       '400':
+ *         description: Bad request or token revocation failure
+ */
 async function RevokeRefreshTokens(req, res) {
-    // #swagger.tags = ['Refresh Token']
-    // #swagger.summary = 'Revoke a refresh Token'
+
 
     try {
         const {userId} = req.body;

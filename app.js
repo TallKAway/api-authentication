@@ -5,10 +5,12 @@ const cors = require("cors");
 const dotenv = require("dotenv");
 const route = require("./routes");
 const http = require('http');
+const swaggerUi = require('swagger-ui-express');
 
 const authRouter = require('./routes/auth.routes');
 const userRouter = require('./routes/user.routes');
 const middlewares = require('./middlewares/auth');
+const swaggerSpec = require('./docs/swaggerConfig');
 
 const PORT = process.env.PORT || 3008;
 const api = express();
@@ -18,7 +20,7 @@ api.use(cors({
   origin: '*'
 }));
 
-    
+    api.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 const meta = {
     Port: PORT
