@@ -168,6 +168,7 @@ async function Login(req, res) {
         const { email, password } = req.body;
 
         console.log("email", email)
+        console.log("password", password)
 
         if (!email || !password) {
             return res.status(400).json({
@@ -179,6 +180,7 @@ async function Login(req, res) {
 
         console.log("toto")
         const existingUser = await findUserByEmail(email);
+        
         console.log("existingUser", existingUser)
 
         if (!existingUser) {
