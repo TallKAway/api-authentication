@@ -180,7 +180,7 @@ async function Login(req, res) {
 
         console.log("toto")
         const existingUser = await findUserByEmail(email);
-        
+
         console.log("existingUser", existingUser)
 
         if (!existingUser) {
@@ -206,9 +206,8 @@ async function Login(req, res) {
 
  
     } catch (err) {
+         console.log(err.message);
         console.log("Error during authentication");
-        console.log(err);
-        console.log(err.message);
         return res.status(400).json({ msg: "Unsuccessful Login" });
     }
 }
