@@ -167,6 +167,8 @@ async function Login(req, res) {
     try {
         const { email, password } = req.body;
 
+        console.log("email", email)
+
         if (!email || !password) {
             return res.status(400).json({
                 msg_code: ResponseMessage.MSG_600,
@@ -174,7 +176,10 @@ async function Login(req, res) {
             });
         }
 
+
+        console.log("toto")
         const existingUser = await findUserByEmail(email);
+        console.log("existingUser", existingUser)
 
         if (!existingUser) {
             console.log("Invalid User");
@@ -184,9 +189,11 @@ async function Login(req, res) {
             });
         }
 
+        console.log("token 1")
+
         const tokens = await generateAllTokens(existingUser, res, req);
         
-       
+       console.log("tokens", tokens)
 
         return res.json({
             accessToken: tokens.accessToken,
@@ -199,6 +206,7 @@ async function Login(req, res) {
     } catch (err) {
         console.log("Error during authentication");
         console.log(err);
+        console.log(err.message);
         return res.status(400).json({ msg: "Unsuccessful Login" });
     }
 }
