@@ -312,8 +312,9 @@ async function RefreshToken(req, res) {
         const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
         const savedRefreshToken = await findRefreshTokenById(payload.jti);
-
-        if (!savedRefreshToken || savedRefreshToken.revoked === true) {
+       
+        
+        if (!savedRefreshToken) {
             res.status(401);
             return res.status(400).json({msg: "Unauthorized"});
         }
@@ -322,8 +323,11 @@ async function RefreshToken(req, res) {
 
         if (hashedToken !== savedRefreshToken.hashedToken) {
             res.status(401);
-            return res.status(400).json({msg: "Unauthorized"});
+            return res.status(400).json({ msg: "Unauthorized" });
+            
         }
+
+        
 
         const user = await findUserById(payload.userId);
 
@@ -334,12 +338,14 @@ async function RefreshToken(req, res) {
         const existingUser = await findUserByEmail(user.email);
         await deleteRefreshToken(savedRefreshToken.id);
 
-        const tokens = await generateAllTokens(existingUser, res, req)
+        const tokens = await generateAllTokens(existingUser, req);
 
-        // res.json({
-        //     accessToken : tokens.accessToken,
-        //     refreshToken: tokens.refreshToken
-        // });
+        
+
+        res.json({
+            accessToken : tokens.accessToken,
+            refreshToken: tokens.refreshToken
+        });
     } catch (err) {
         console.log("Error when Refreshing Token.")
         console.log(err)
@@ -388,7 +394,7 @@ async function RevokeRefreshTokens(req, res) {
 async function generateAllTokens(existingUser, req) {
     const jti = (new ObjectId()).toString();
 
-    if (existingUser.isAdmin) {
+    if (existingUser) {
         // Créez le token d'administrateur
         const { accessToken, refreshToken } = generateAdminTokens(
             existingUser,
@@ -422,20 +428,12 @@ async function generateAllTokens(existingUser, req) {
             userData,
             jti
         );
-
-        if (userData.registered === false) {
-            // Marquez l'utilisateur comme enregistré (mettez l'attribut à true)
-            const setRegisterMember = await setMemberIsRegistered(userData.id, accessToken);
-        }
-
-        await addRefreshTokenToWhitelist({
+  await addRefreshTokenToWhitelist({
             jti,
             refreshToken,
             userId: existingUser.id
         });
-
-//         const xForwardedFor = req.headers['x-forwarded-for'];
-// const clientIP = xForwardedFor ? xForwardedFor.split(',').shift() : req.socket?.remoteAddress;
+    
 
         console.log(
             "info",
