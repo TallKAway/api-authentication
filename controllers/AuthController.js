@@ -172,7 +172,7 @@ async function Login(req, res) {
 
         if (!email || !password) {
             return res.status(400).json({
-                msg_code: ResponseMessage.MSG_600,
+                msg_code: ResponseMessage.MSG_601,
                 msg: "You must provide an email and a password."
             });
         }

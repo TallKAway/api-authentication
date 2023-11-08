@@ -16,9 +16,9 @@ const PORT = process.env.PORT || 3008;
 const api = express();
 dotenv.config();
 api.use(express.json());
-api.use(cors({
-  origin: '*'
-}));
+// api.use(cors({
+//   origin: '*'
+// }));
 
     api.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
