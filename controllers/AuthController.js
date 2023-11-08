@@ -314,7 +314,7 @@ async function RefreshToken(req, res) {
         const savedRefreshToken = await findRefreshTokenById(payload.jti);
        
         
-        if (!savedRefreshToken) {
+        if (!savedRefreshToken || savedRefreshToken.revoked === true) {
             res.status(401);
             return res.status(400).json({msg: "Unauthorized"});
         }
