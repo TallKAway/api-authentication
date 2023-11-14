@@ -167,9 +167,6 @@ async function Login(req, res) {
     try {
         const { email, password } = req.body;
 
-        console.log("email", email)
-        console.log("password", password)
-
         if (!email || !password) {
             return res.status(400).json({
                 msg_code: ResponseMessage.MSG_601,
@@ -177,11 +174,7 @@ async function Login(req, res) {
             });
         }
 
-
-        console.log("toto")
         const existingUser = await findUserByEmail(email);
-
-        console.log("existingUser", existingUser)
 
         if (!existingUser) {
             console.log("Invalid User");
@@ -189,6 +182,16 @@ async function Login(req, res) {
                 msg_code: ResponseMessage.MSG_601,
                 msg: "Invalid login credentials."
             });
+        }
+
+
+        const validPassword = await bcrypt.compare(password, existingUser.password);
+        if (!validPassword) {
+            res.status(403);
+            console.log("Invalide Password")
+            return res.status(400).json({
+                msg_code : ResponseMessage.MSG_601,
+                msg: "Invalid login credentials."});
         }
 
         console.log("token 1")
