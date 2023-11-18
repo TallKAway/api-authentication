@@ -9,6 +9,7 @@ function findUserByEmail(email) {
         where: {
             email: email,
         },
+        
     });
 }
 
