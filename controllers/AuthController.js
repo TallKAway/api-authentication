@@ -202,7 +202,8 @@ async function Login(req, res) {
 
         return res.json({
             accessToken: tokens.accessToken,
-            refreshToken: tokens.refreshToken
+            refreshToken: tokens.refreshToken,
+            user:existingUser
         });
 
 
