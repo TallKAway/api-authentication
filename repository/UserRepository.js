@@ -9,7 +9,26 @@ function findUserByEmail(email) {
         where: {
             email: email,
         },
-        
+        include: {
+        friends: {
+          select: {
+            id: true,
+            username: true,
+            password: false,
+            email: true,
+            cellphone: true,
+            inverseFriends: {
+              select: {
+                id: true,
+                username: true,
+                password: false,
+                email: true,
+                cellphone: true,
+              }
+            }
+          }
+        },
+      },
     });
 }
 
