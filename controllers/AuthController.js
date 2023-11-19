@@ -255,7 +255,7 @@ async function Register(req, res) {
     email: req.body.email,
     cellphone: req.body.cellphone,
     password: req.body.password,
-    friends: [],
+    // friends: [],
   };
     try {
       
