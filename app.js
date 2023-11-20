@@ -8,7 +8,7 @@ const http = require('http');
 const swaggerUi = require('swagger-ui-express');
 
 const authRouter = require('./routes/auth.routes');
-const userRouter = require('./routes/user.routes');
+
 const middlewares = require('./middlewares/auth');
 const swaggerSpec = require('./docs/swaggerConfig');
 
