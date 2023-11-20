@@ -28,14 +28,10 @@ const {
     revokeTokens,
     getUser,
     getUserWithId,
-    setMemberIsRegistered,
 } = require("../repository/AuthRepository");
 
-const {sendWelcomeEmail} = require('../repository/NotificationsRepository');
 const {hashToken} = require('../utils/hashToken')
-// const {decrypt} = require('../utils/encryption')
 
-const { isValidatedPasswordToken } = require('../middlewares/auth')
 
 
 /**

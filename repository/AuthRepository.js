@@ -83,24 +83,7 @@ async function getUserWithId(userId) {
 
 
 
-async function setMemberIsRegistered(userId, token) {
 
-    // const config = {
-    //     headers: { Authorization: authorization }
-    // };
-
-    console.log("setMemberIsRegistered")
-    // console.log(config)
-    try {
-        const response =  await axios.put(USER_API_URL + 'user/registered/update', { userId:userId, token:token})
-        return response.data
-    }catch (error){
-        console.log(error)
-        discordLogger.error( "Une erreur s'est produite.", formateError(error));
-        console.log("Erreur lors de la mise a jour du membre")
-    }
-
-}
 
 module.exports = {
     addRefreshTokenToWhitelist,
@@ -109,5 +92,4 @@ module.exports = {
     revokeTokens,
     getUser,
     getUserWithId,
-    setMemberIsRegistered,
 };
